@@ -1,54 +1,53 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useReducer } from 'react';
 import './App.css';
-import { useFetch } from './useFetch';
 
-const computeLongestWord = arr => {
-  if (!arr) return [];
-
-  console.log('computing longest word');
-
-  let longestWord = '';
-  JSON.parse(arr).forEach(sentence =>
-    sentence.split(' ').forEach(word => {
-      if (word.length > longestWord.length) {
-        longestWord = word;
-      }
-    }),
-  );
-  return longestWord;
-};
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        todos: [...state.todos, { text: action.text, completed: false }],
+        todoCount: state.todoCount + 1,
+      };
+    case 'TOGGLE_TODO':
+      return {
+        todos: state.todos.map((t, idx) =>
+          idx === action.idx ? { ...t, completed: !t.completed } : t,
+        ),
+        todoCount: state.todoCount,
+      };
+    default:
+      return state;
+  }
+}
 
 function App() {
-  const [count, setCount] = useState(0);
-  const { data } = useFetch(
-    'https://raw.githubusercontent.com/ajzbc/kanye.rest/master/quotes.json',
-  );
-
-  // useCallback is pointless because there are no dependencies
-  // so you can put the function outside the component
-  // const computeLongestWord = useCallback(arr => {
-  //   if (!arr) return [];
-
-  //   console.log('computing longest word');
-
-  //   let longestWord = '';
-  //   JSON.parse(arr).forEach(sentence =>
-  //     sentence.split(' ').forEach(word => {
-  //       if (word.length > longestWord.length) {
-  //         longestWord = word;
-  //       }
-  //     }),
-  //   );
-  //   return longestWord;
-  // }, []);
-
-  const longestWord = useMemo(() => computeLongestWord(data), [data]);
-
+  const [{ todos, todoCount }, dispatch] = useReducer(reducer, {
+    todos: [],
+    todoCount: 0,
+  });
+  const [text, setText] = useState();
   return (
     <div className='App'>
-      <div>count: {count}</div>
-      <button onClick={() => setCount(count + 1)}>increment</button>
-      <div>{longestWord}</div>
+      <form
+        onSubmit={e => {
+          e.preventDefault(); //form will refresh if not added
+          dispatch({ type: 'ADD_TODO', text });
+          setText('');
+        }}
+      >
+        <input value={text} onChange={e => setText(e.target.value)} />
+      </form>
+      <div>Number of todos: {todoCount}</div>
+      <pre>{JSON.stringify(todos, null, 2)}</pre>
+      {todos.map((t, idx) => (
+        <div
+          key={t.text}
+          onClick={() => dispatch({ type: 'TOGGLE_TODO', idx })}
+          style={{ textDecoration: t.completed ? 'line-through' : '' }}
+        >
+          {t.text}
+        </div>
+      ))}
     </div>
   );
 }
