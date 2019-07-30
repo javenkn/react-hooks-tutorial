@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import './App.css';
 import { useForm } from './useForm';
 import { Hello } from './Hello';
+import { useMeasure } from './useMeasure';
 
 function App() {
   const [values, handleChange] = useForm({ email: '', password: '' });
@@ -10,6 +11,11 @@ function App() {
   const hello = useRef(() => {
     console.log('hello');
   });
+  const [rect, inputRef2] = useMeasure();
+
+  // useLayoutEffect(() => {
+  //   console.log(inputRef.current.getBoundingClientRect());
+  // }, []);
 
   return (
     <div className='App'>
@@ -27,6 +33,7 @@ function App() {
         name='password'
         value={values.password}
         onChange={handleChange}
+        ref={inputRef2}
       />
       <button
         onClick={() => {

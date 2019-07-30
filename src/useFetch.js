@@ -13,12 +13,10 @@ export const useFetch = url => {
   useEffect(() => {
     const fetchApi = async () => {
       const data = await fetch(url);
-      setTimeout(async () => {
-        if (isCurrent.current) {
-          // component is still mounted
-          setState({ data: await data.text(), isLoading: false });
-        }
-      }, 2000);
+      if (isCurrent.current) {
+        // component is still mounted
+        setState({ data: await data.text(), isLoading: false });
+      }
     };
     fetchApi();
 
