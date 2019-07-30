@@ -1,48 +1,26 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import './App.css';
-import { useForm } from './useForm';
 import { Hello } from './Hello';
-import { useMeasure } from './useMeasure';
+import { Square } from './Square';
 
 function App() {
-  const [values, handleChange] = useForm({ email: '', password: '' });
-  const [showHello, setShowHello] = useState(true);
-  const inputRef = useRef();
-  const hello = useRef(() => {
-    console.log('hello');
-  });
-  const [rect, inputRef2] = useMeasure();
+  const [count, setCount] = useState(0);
+  const favNums = [7, 21, 37];
 
-  // useLayoutEffect(() => {
-  //   console.log(inputRef.current.getBoundingClientRect());
-  // }, []);
+  const increment = useCallback(
+    n => {
+      setCount(c => c + n);
+    },
+    [setCount],
+  );
 
   return (
     <div className='App'>
-      <button onClick={() => setShowHello(!showHello)}>Toggle Hello</button>
-      {showHello && <Hello />}
-      <input
-        type='text'
-        name='email'
-        value={values.email}
-        onChange={handleChange}
-        ref={inputRef}
-      />
-      <input
-        type='password'
-        name='password'
-        value={values.password}
-        onChange={handleChange}
-        ref={inputRef2}
-      />
-      <button
-        onClick={() => {
-          inputRef.current.focus();
-          hello.current();
-        }}
-      >
-        focus
-      </button>
+      <Hello increment={increment} />
+      <div>count: {count}</div>
+      {favNums.map(n => {
+        return <Square key={n} increment={increment} n={n} />;
+      })}
     </div>
   );
 }
